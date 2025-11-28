@@ -293,3 +293,31 @@ VALUES
 -- Подписка центра
 INSERT INTO center_subscriptions (center_id, tariff_id, start_date, end_date, is_active)
 VALUES (1, 2, '2025-01-01', '2025-12-31', TRUE);
+
+
+
+ALTER TABLE kids
+  ADD COLUMN photo_url VARCHAR(255) NULL,
+  ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+
+ALTER TABLE parents
+  ADD COLUMN telegram VARCHAR(100) NULL,
+  ADD COLUMN whatsapp VARCHAR(100) NULL,
+  ADD COLUMN extra_email VARCHAR(255) NULL,
+  ADD COLUMN avatar_url VARCHAR(255) NULL;
+
+CREATE TABLE school_lessons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kid_id INT NOT NULL,
+    weekday TINYINT NOT NULL,          -- 1=Пн ... 7=Вс
+    lesson_number TINYINT NULL,        -- 1,2,3... (по желанию)
+    start_time TIME NULL,              -- или можно хранить время
+    end_time TIME NULL,
+    subject VARCHAR(100) NOT NULL,
+    classroom VARCHAR(50) NULL,
+    FOREIGN KEY (kid_id) REFERENCES kids(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
