@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Кабинет родителя — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+
+      <!-- значок колокольчика → страница с напоминаниями -->
+      <button
+        class="icon-button"
+        type="button"
+        title="Напоминания"
+        onclick="window.location.href='reminders.html'"
+      >
+        🔔
+      </button>
+
+      <!-- кнопка выхода -->
+      <button class="btn btn-outline btn-sm" type="button" id="logout-btn">
+        Выйти
+      </button>
+    </nav>
+  </div>
+</header>
+
+
+<main class="page-parent">
+  <div class="container parent-layout">
+    <!-- Боковое меню -->
+    <aside class="parent-sidebar">
+      <button class="tab-btn active" data-section="parent-dashboard">
+        Главное
+      </button>
+      <button class="tab-btn" data-section="parent-kids">
+        Мои дети
+      </button>
+      <button class="tab-btn" data-section="parent-schedule">
+        Расписание
+      </button>
+      <button class="tab-btn" data-section="parent-profile">
+        Мой профиль
+      </button>
+    </aside>
+
+    <!-- Контент -->
+    <section class="parent-main">
+      <!-- 2.1. Дашборд -->
+      <section id="parent-dashboard" class="parent-section">
+        <div id="parent-greeting"></div>
+        <div id="parent-upcoming" class="upcoming-card" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- 2.3. Мои дети -->
+      <section id="parent-kids" class="parent-section" style="display:none;">
+        <div class="section-header">
+          <h2>Мои дети</h2>
+          <button class="btn btn-primary btn-sm" id="add-kid-btn">+ Добавить ребёнка</button>
+        </div>
+
+        <div id="kids-list" style="margin-top:16px;"></div>
+
+        <!-- форма добавления/редактирования -->
+        <div id="kid-form-block" class="reminders-card" style="display:none; margin-top:16px;">
+          <h3 id="kid-form-title">Добавить ребёнка</h3>
+          <div class="auth-field">
+            <label>Имя</label>
+            <input type="text" id="kid-name">
+          </div>
+          <div class="auth-field">
+            <label>Дата рождения</label>
+            <input type="date" id="kid-birth">
+          </div>
+          <div class="auth-field">
+            <label>Пол</label>
+            <select id="kid-gender">
+              <option value="">Не указано</option>
+              <option value="girl">Девочка</option>
+              <option value="boy">Мальчик</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Фото (URL)</label>
+            <input type="text" id="kid-photo" placeholder="https://...">
+          </div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn btn-primary btn-sm" id="kid-save-btn">Сохранить</button>
+            <button class="btn btn-outline btn-sm" id="kid-cancel-btn">Отмена</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.5. Расписание (школьное + кружки) -->
+      <section id="parent-schedule" class="parent-section" style="display:none;">
+        <h2>Расписание детей</h2>
+        <p class="section-subtitle">
+          Здесь будет умное расписание: школьные уроки + кружки. Пока добавим школьное расписание.
+        </p>
+
+        <!-- форма добавления школьных уроков -->
+        <div class="reminders-card" style="margin-top:16px;">
+          <h3>Добавить школьный урок</h3>
+          <div class="auth-field">
+            <label>Ребёнок</label>
+            <select id="school-kid-select"></select>
+          </div>
+          <div class="auth-field">
+            <label>День недели</label>
+            <select id="school-weekday">
+              <option value="1">Понедельник</option>
+              <option value="2">Вторник</option>
+              <option value="3">Среда</option>
+              <option value="4">Четверг</option>
+              <option value="5">Пятница</option>
+              <option value="6">Суббота</option>
+              <option value="7">Воскресенье</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Номер урока</label>
+            <input type="number" id="school-lesson-number" min="1" max="10">
+          </div>
+          <div class="auth-field">
+            <label>Предмет</label>
+            <input type="text" id="school-subject">
+          </div>
+          <button class="btn btn-primary btn-sm" id="school-add-btn">Добавить урок</button>
+        </div>
+
+        <div id="school-lessons-list" class="upcoming-card" style="margin-top:16px;">
+          Загрузка школьного расписания...
+        </div>
+      </section>
+
+      <!-- 2.2. Мой профиль -->
+      <section id="parent-profile" class="parent-section" style="display:none;">
+        <h2>Мой профиль</h2>
+        <div class="reminders-card">
+          <div class="auth-field">
+            <label>Город</label>
+            <input type="text" id="profile-city">
+          </div>
+          <div class="auth-field">
+            <label>Телефон</label>
+            <input type="text" id="profile-phone">
+          </div>
+          <div class="auth-field">
+            <label>Telegram</label>
+            <input type="text" id="profile-telegram">
+          </div>
+          <div class="auth-field">
+            <label>WhatsApp</label>
+            <input type="text" id="profile-whatsapp">
+          </div>
+          <div class="auth-field">
+            <label>Доп. email</label>
+            <input type="email" id="profile-extra-email">
+          </div>
+          <div class="auth-field">
+            <label>Аватар (URL)</label>
+            <input type="text" id="profile-avatar">
+          </div>
+          <button class="btn btn-primary btn-sm" id="profile-save-btn">
+            Сохранить профиль
+          </button>
+        </div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+    </div>
+  </div>
+</footer>
+
+<script src="parent.js"></script>
+
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
+    </div>
+  </div>
+</footer>
+
+<script src="parent.js"></script>
+</body>
+</html>
+<div style="margin-top:24px;">
+  <h3>Школьное расписание детей</h3>
+  <p class="section-subtitle">
+    Добавьте уроки, чтобы система могла учитывать пересечения с кружками.
+  </p>
+
+  <div class="reminders-card">
+    <div class="auth-field">
+      <label>Ребёнок</label>
+      <select id="school-kid-select"></select>
+    </div>
+    <div class="auth-field">
+      <label>День недели</label>
+      <select id="school-weekday">
+        <option value="1">Понедельник</option>
+        <option value="2">Вторник</option>
+        <option value="3">Среда</option>
+        <option value="4">Четверг</option>
+        <option value="5">Пятница</option>
+        <option value="6">Суббота</option>
+        <option value="7">Воскресенье</option>
+      </select>
+    </div>
+    <div class="auth-field">
+      <label>Номер урока</label>
+      <input type="number" id="school-lesson-number" min="1" max="10">
+    </div>
+    <div class="auth-field">
+      <label>Предмет</label>
+      <input type="text" id="school-subject">
+    </div>
+    <button class="btn btn-primary btn-sm" id="school-add-btn">Добавить урок</button>
+  </div>
+
+  <div id="school-lessons-list" class="upcoming-card" style="margin-top:16px;">
+    Загрузка школьного расписания...
+  </div>
+</div>
+

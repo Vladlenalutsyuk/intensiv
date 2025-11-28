@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Вход — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <a href="schedule.html">Умное расписание</a>
+      <a href="reminders.html">Напоминания</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-auth">
+  <div class="container">
+    <div class="auth-card">
+      <div class="auth-toggle">
+        <button type="button" id="role-parent" class="active">Я родитель</button>
+        <button type="button" id="role-center">Я детский центр</button>
+      </div>
+
+      <h1>Вход в аккаунт</h1>
+      <p>
+        Демо-доступ: <br>
+        Родитель — <code>parent_demo@example.com</code> / <code>parent123</code><br>
+        Центр — <code>center_demo@example.com</code> / <code>center123</code>
+      </p>
+
+      <form id="auth-form">
+        <input type="hidden" id="role-input" name="role">
+        <div class="auth-field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="auth-field">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Войти</button>
+        <button class="btn btn-secondary" type="button" onclick="document.getElementById('email').value='parent_demo@example.com';document.getElementById('password').value='parent123';">
+          Демо-родитель
+        </button>
+        <button class="btn btn-outline" type="button" onclick="document.getElementById('email').value='center_demo@example.com';document.getElementById('password').value='center123';">
+          Демо-центр
+        </button>
+      </form>
+
+      <div id="auth-status" class="auth-status" style="margin-top:10px;font-size:13px;color:#777;"></div>
+
+      <div id="auth-dashboard" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>РазвиТайм — все занятия ваших детей в одном расписании</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ШАПКА -->
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <!-- если у тебя есть логотип, положи его в frontend/assets/logo.png -->
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">онлайн-помощник для родителей и детских центров</div>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <a href="schedule.html">Умное расписание</a>
+      <a href="auth.html">Для родителей и центров</a>
+    </nav>
+
+    <div class="nav-auth">
+  <button class="btn btn-secondary btn-sm js-login-cta"
+          onclick="window.location.href='auth.html'">
+    Войти
+  </button>
+  <button class="btn btn-primary btn-sm js-login-cta"
+          onclick="window.location.href='auth.html'">
+    Создать аккаунт
+  </button>
+</div>
+
+  </div>
+</header>
+
+<!-- 1. HERO-БЛОК -->
+<section class="hero">
+  <div class="container hero-inner">
+    <!-- Левая колонка -->
+    <div>
+      <h1 class="hero-title">РазвиТайм — удобный онлайн-помощник для родителей и детских центров</h1>
+      <p class="hero-tagline">
+        Все занятия ваших детей — в одном расписании: единый каталог кружков, учёт школьных уроков
+        и удобный личный кабинет для родителей и центров.
+      </p>
+
+      <div class="hero-badges">
+        <span class="badge">единое расписание семьи</span>
+        <span class="badge">учёт школьного расписания</span>
+        <span class="badge">личный кабинет родителя</span>
+        <span class="badge">фильтры по занятиям и районам</span>
+        <span class="badge">для центров — больше заявок и меньше затрат на рекламу</span>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="window.location.href='auth.html#parent'">
+          Я родитель
+        </button>
+        <button class="btn btn-secondary" onclick="window.location.href='auth.html#center'">
+          Я детский центр
+        </button>
+      </div>
+
+      <p class="hero-caption">
+        Платформа для мам и пап детей 3–17 лет и администраторов детских центров: наводим порядок в расписании и помогаем не упускать важные занятия.
+      </p>
+    </div>
+
+    <!-- Правая колонка — иллюстрация / демо-расписание -->
+    <div class="hero-schedule-card">
+      <div class="hero-schedule-header">
+        <div>
+          <div class="hero-schedule-title">Демо-расписание Марии, 8 лет</div>
+          <div class="hero-schedule-sub">как выглядит неделя без пересечений</div>
+        </div>
+        <span class="hero-chip">демо-режим</span>
+      </div>
+
+      <div class="schedule-grid">
+        <div>
+          <div class="schedule-day">Пн</div>
+          <div class="schedule-slot slot-school">Школа 8:30–13:30</div>
+          <div class="schedule-slot slot-creative">Рисование 16:00</div>
+        </div>
+        <div>
+          <div class="schedule-day">Вт</div>
+          <div class="schedule-slot slot-school">Школа 8:30–13:30</div>
+          <div class="schedule-slot slot-sport">Плавание 18:00</div>
+        </div>
+        <div>
+          <div class="schedule-day">Ср</div>
+          <div class="schedule-slot slot-school">Школа 8:30–13:30</div>
+          <div class="schedule-slot slot-creative">Английский 17:00</div>
+        </div>
+        <div>
+          <div class="schedule-day">Чт</div>
+          <div class="schedule-slot slot-school">Школа 8:30–13:30</div>
+          <div class="schedule-slot slot-sport">Гимнастика 17:30</div>
+        </div>
+        <div>
+          <div class="schedule-day">Пт</div>
+          <div class="schedule-slot slot-school">Школа 8:30–12:30</div>
+          <div class="schedule-slot slot-creative">Робототехника 16:30</div>
+        </div>
+      </div>
+
+      <div class="hero-legend">
+        <span class="legend-item">
+          <span class="legend-dot" style="background:#f0f0f3;"></span> школа
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot" style="background:#e4f6e4;"></span> спорт
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot" style="background:#ffe1c8;"></span> творчество и языки
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. БЛОК «О ПЛАТФОРМЕ» -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">О платформе РазвиТайм</h2>
+      <p class="section-subtitle">
+        Мы объединяем родителей, детей и детские центры в одном удобном онлайн-пространстве.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-card">
+        <div class="feature-icon"></div>
+        <h3>Все кружки в одном месте</h3>
+        <p>Собираем каталоги занятий по городу: спорт, творчество, наука, языки и подготовка к школе — в одном интерфейсе.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon"></div>
+        <h3>Умное расписание без пересечений</h3>
+        <p>Вы указываете школьные уроки детей, а система помогает подбирать кружки так, чтобы ничего не накладывалось друг на друга.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon"></div>
+        <h3>Напоминания и удобное планирование</h3>
+        <p>Напоминания о занятиях, ближайшие события, экспорт в календарь и единое семейное расписание, понятное всем.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon"></div>
+        <h3>Простая работа для детских центров</h3>
+        <p>Онлайн-кабинет центра, заявки от родителей, управление расписанием и рост охватов без лишних рекламных затрат.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ИНСТРУКЦИЯ ДЛЯ РОДИТЕЛЕЙ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Как работает для родителей</h2>
+      <p class="section-subtitle">Три простых шага, чтобы собрать жизнь ребёнка в понятное расписание.</p>
+    </div>
+
+    <div class="split-card">
+      <ol class="split-card-steps">
+        <li>Зарегистрируйтесь по номеру телефона или e-mail.</li>
+        <li>Добавьте профили детей и их школьное расписание.</li>
+        <li>Подберите кружки и записывайте ребёнка в пару кликов.</li>
+      </ol>
+      <div class="split-card-footer">
+        <button class="btn btn-primary" onclick="window.location.href='auth.html#parent'">
+          Начать как родитель
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. ИНСТРУКЦИЯ ДЛЯ ЦЕНТРОВ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Как работает для детских центров</h2>
+      <p class="section-subtitle">Показываем ваши программы родителям и помогаем собирать заявки онлайн.</p>
+    </div>
+
+    <div class="split-card">
+      <ol class="split-card-steps">
+        <li>Оплатите подписку и получите логин/пароль администратора центра.</li>
+        <li>Заполните информацию о центре и кружках по готовому шаблону.</li>
+        <li>Получайте заявки от родителей и управляйте расписанием онлайн.</li>
+      </ol>
+      <div class="split-card-footer">
+        <button class="btn btn-secondary" onclick="window.location.href='auth.html#center'">
+          Начать как центр
+        </button>
+        <button class="btn btn-outline" onclick="window.location.href='auth.html#center'">
+          Оставить заявку центру
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. ЦИФРЫ И СТАТИСТИКА (ИЗ БД) -->
+<section class="section stats-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Цифры и статистика</h2>
+      <p class="section-subtitle">
+        Данные подгружаются из реальной базы РазвиТайм (демо-значения по таблицам parents, kids, centers, activities).
+      </p>
+    </div>
+
+    <!-- сюда JS подставит карточки с цифрами -->
+    <div id="stats-container"></div>
+  </div>
+</section>
+
+<!-- 6. ОТЗЫВЫ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Отзывы о РазвиТайм</h2>
+      <p class="section-subtitle">Что говорят родители и детские центры (демо-отзывы).</p>
+    </div>
+
+    <div class="split-cards">
+      <!-- Отзывы родителей -->
+      <div class="split-card">
+        <h3>Родители</h3>
+        <div class="review-card">
+          <p><b>Екатерина, мама Марии, 8 лет</b></p>
+          <p class="section-subtitle">
+            «Раньше я держала расписание в голове и в заметках. Теперь всё в одном месте: школа,
+            плавание, английский, творчество. Очень выручает, когда плотная неделя.»
+          </p>
+        </div>
+        <div class="review-card">
+          <p><b>Алексей, папа Ильи, 12 лет</b></p>
+          <p class="section-subtitle">
+            «Нравится, что видно, когда у сына есть окна между уроками, и можно подобрать кружок без
+            накладок. Плюс напоминания — удобно, не забываем про тренировки.»
+          </p>
+        </div>
+      </div>
+
+      <!-- Отзывы центров -->
+      <div class="split-card">
+        <h3>Детские центры</h3>
+        <div class="review-card">
+          <p><b>«Демо Центр развития детей», директор Анна</b></p>
+          <p class="section-subtitle">
+            «Получаем заявки прямо через платформу, родителям видно расписание по возрастам и группам.
+            Стало проще управлять загрузкой групп и планировать расписание преподавателей.»
+          </p>
+        </div>
+        <div class="review-card">
+          <p><b>Языковой центр «LinguaKids»</b></p>
+          <p class="section-subtitle">
+            «РазвиТайм даёт стабильный поток новых семей. Родители видят расписание, формат занятий и
+            могут сразу записаться или задать вопрос.»
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. С НАМИ СОТРУДНИЧАЮТ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">С нами сотрудничают</h2>
+      <p class="section-subtitle">
+        Примеры детских центров, которые могут быть подключены к РазвиТайм (в демо одна запись уже есть в таблице centers).
+      </p>
+    </div>
+
+    <div class="partners-row">
+      <a href="#" class="partner-card">
+        <div class="partner-name">Демо Центр развития детей</div>
+        <div class="partner-city">Симферополь</div>
+      </a>
+      <a href="#" class="partner-card">
+        <div class="partner-name">Языковой центр «LinguaKids»</div>
+        <div class="partner-city">Центр города</div>
+      </a>
+      <a href="#" class="partner-card">
+        <div class="partner-name">СК «Дельфин»</div>
+        <div class="partner-city">Бассейн на ул. Летней</div>
+      </a>
+      <a href="#" class="partner-card">
+        <div class="partner-name">Детский центр «Солнечный город»</div>
+        <div class="partner-city">Спальный район</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 8. ФУТЕР -->
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм. Помогаем родителям и детским центрам планировать развитие детей.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
+      <a href="#">Политика конфиденциальности</a>
+      <a href="#">Пользовательское соглашение</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

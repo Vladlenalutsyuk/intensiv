@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Умное расписание — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <a href="schedule.html">Умное расписание</a>
+      <a href="reminders.html">Напоминания</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-schedule">
+  <!-- Блок для НЕавторизованных -->
+  <div class="container" id="schedule-guest-message" style="display:none;">
+    <div class="section-header">
+      <h1>Умное расписание доступно только авторизованным родителям</h1>
+      <p class="section-subtitle">
+        Войдите в систему, чтобы видеть расписание детей и учитывать школьные уроки и кружки.
+      </p>
+    </div>
+    <button class="btn btn-primary" onclick="window.location.href='auth.html#parent'">
+      Войти как родитель
+    </button>
+  </div>
+
+  <!-- Основной контент для авторизованного родителя -->
+  <div class="container" id="schedule-content">
+    <div class="schedule-header">
+      <div class="schedule-header-main">
+        <h1>Умное расписание семьи</h1>
+        <p>Демо-режим: Мария Петрова, 8 лет</p>
+
+        <div class="schedule-tabs">
+          <button class="tab-pill active">Мария · 8 лет</button>
+          <button class="tab-pill">Илья · 12 лет</button>
+          <button class="tab-pill">+ Добавить ребёнка</button>
+        </div>
+      </div>
+
+      <div class="schedule-actions">
+        <button class="btn btn-outline btn-sm" onclick="window.location.href='search.html'">
+          Найти новый кружок
+        </button>
+        <button class="btn btn-secondary btn-sm">
+          Добавить школьный урок
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="window.location.href='reminders.html'">
+          Экспорт / напоминания
+        </button>
+      </div>
+    </div>
+
+    <div class="schedule-layout">
+      <section class="schedule-week-grid">
+        <div class="schedule-week-inner">
+          <!-- Пн -->
+          <div>
+            <div class="schedule-week-day">Пн</div>
+            <div class="schedule-week-slot school">8:30–13:30 школа</div>
+            <div class="schedule-week-slot creative">16:00 рисование</div>
+          </div>
+          <!-- Вт -->
+          <div>
+            <div class="schedule-week-day">Вт</div>
+            <div class="schedule-week-slot school">8:30–13:30 школа</div>
+            <div class="schedule-week-slot sport">18:00 плавание</div>
+          </div>
+          <!-- Ср -->
+          <div>
+            <div class="schedule-week-day">Ср</div>
+            <div class="schedule-week-slot school">8:30–13:30 школа</div>
+            <div class="schedule-week-slot creative">17:00 английский</div>
+          </div>
+          <!-- Чт -->
+          <div>
+            <div class="schedule-week-day">Чт</div>
+            <div class="schedule-week-slot school">8:30–13:30 школа</div>
+            <div class="schedule-week-slot sport">17:30 гимнастика</div>
+          </div>
+          <!-- Пт -->
+          <div>
+            <div class="schedule-week-day">Пт</div>
+            <div class="schedule-week-slot school">8:30–12:30 школа</div>
+            <div class="schedule-week-slot creative">16:30 робототехника</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="schedule-sidebar">
+        <div class="legend-card">
+          <h3>Что обозначают цвета</h3>
+          <div class="legend-row">
+            <span>▪ школа — серый</span>
+            <span>▪ спорт — зелёный</span>
+            <span>▪ творчество / языки — оранжевый</span>
+          </div>
+        </div>
+
+        <div class="upcoming-card">
+          <h3>Ближайшие занятия</h3>
+          <ul class="upcoming-list">
+            <li>Сегодня, 18:00 — плавание</li>
+            <li>Завтра, 17:00 — английский</li>
+            <li>Пт, 16:30 — робототехника</li>
+          </ul>
+          <button class="btn btn-primary btn-sm" onclick="window.location.href='reminders.html'">
+            🔔 Настроить напоминания
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+    </div>
+  </div>
+</footer>
+
+<!-- сначала логика проверки авторизации на расписании -->
+<script src="schedule.js"></script>
+<!-- твой общий фронтовый JS, если он нужен -->
+<script src="script.js"></script>
+</body>
+</html>

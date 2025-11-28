@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Настройки напоминаний — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <a href="schedule.html">Умное расписание</a>
+      <a href="reminders.html">Напоминания</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-reminders">
+  <div class="container">
+    <div class="reminders-card">
+      <h1>Настройки напоминаний</h1>
+      <p>Демо-режим: напоминания сохраняются локально в браузере, без отправки на сервер.</p>
+
+      <div class="reminders-group">
+        <div class="reminders-group-title">Куда отправлять напоминания</div>
+        <div class="checkbox-row">
+          <label><input type="checkbox" checked> E-mail</label>
+          <label><input type="checkbox"> Телеграм</label>
+          <label><input type="checkbox"> Календарь (ICS-файл)</label>
+        </div>
+      </div>
+
+      <div class="reminders-group">
+        <div class="reminders-group-title">За сколько напоминать</div>
+        <div class="reminders-select-row">
+          <select>
+            <option>За 1 час до занятия</option>
+            <option>За 2 часа до занятия</option>
+            <option>За 1 день до занятия</option>
+          </select>
+          <select>
+            <option>Дополнительное — за 10 минут</option>
+            <option>Дополнительное — за 30 минут</option>
+            <option>Без дополнительного напоминания</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="reminders-actions">
+        <button class="btn btn-primary">Сохранить настройки (демо)</button>
+        <button class="btn btn-secondary" onclick="window.location.href='schedule.html'">
+          ← Вернуться к расписанию
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
