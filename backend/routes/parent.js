@@ -80,6 +80,55 @@ router.get("/dashboard", async (req, res) => {
   }
 });
 
+// в начале файла уже должно быть:
+// const express = require("express");
+// const router = express.Router();
+// const pool = require("../db");
+
+// ...
+
+// СЛОТЫ КРУЖКОВ ДЛЯ РОДИТЕЛЯ (по kid_id + enrollments + schedule_slots)
+router.get("/parent/activity-slots", async (req, res) => {
+  try {
+    const parentId = Number(req.query.parentId);
+    if (!parentId) {
+      return res.status(400).json({ error: "parentId is required" });
+    }
+
+    const [rows] = await pool.promise().query(
+      `
+      SELECT 
+        e.id            AS enrollment_id,
+        k.id            AS kid_id,
+        k.full_name     AS kid_name,
+        a.title         AS activity_title,
+        c.name          AS center_name,
+        ss.weekday      AS weekday,
+        ss.start_time   AS start_time,
+        ss.end_time     AS end_time
+      FROM enrollments e
+      JOIN kids k             ON e.kid_id = k.id
+      JOIN activity_groups g  ON e.group_id = g.id
+      JOIN activities a       ON g.activity_id = a.id
+      JOIN centers c          ON a.center_id = c.id
+      JOIN schedule_slots ss  ON ss.group_id = g.id
+      WHERE k.parent_id = ?
+        AND e.status = 'approved'
+      ORDER BY ss.weekday, ss.start_time;
+      `,
+      [parentId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("activity-slots error", err);
+    res.status(500).json({ error: "Failed to load activity slots" });
+  }
+});
+
+
+
+
 /**
  * 2.2. Профиль родителя:
  * GET  /api/parent/profile
@@ -140,6 +189,11 @@ router.post("/profile", async (req, res) => {
  */
 router.get("/kids", async (req, res) => {
   const parentId = getParentId(req);
+  
+  if (!parentId || isNaN(parentId)) {
+    return res.status(400).json({ error: "Invalid parent ID" });
+  }
+  
   try {
     const [rows] = await db.query(
       `SELECT 
@@ -153,10 +207,14 @@ router.get("/kids", async (req, res) => {
        ORDER BY created_at`,
       [parentId]
     );
-    res.json(rows);
+    
+    // ВСЕГДА возвращаем массив, даже если пустой
+    res.json(rows || []);
+    
   } catch (error) {
     console.error("kids list error", error);
-    res.status(500).json({ error: "Ошибка получения списка детей" });
+    // При ошибке тоже возвращаем пустой массив
+    res.status(500).json([]);
   }
 });
 
@@ -261,43 +319,46 @@ router.get("/search-activities", async (req, res) => {
 /**
  * 2.5–2.6. Инфо по конкретному кружку + расписание
  */
+// GET /api/public/activities/:id - информация о занятии
 router.get("/activities/:id", async (req, res) => {
   const activityId = parseInt(req.params.id, 10);
+  
+  if (isNaN(activityId)) {
+    return res.status(400).json({ error: "Invalid activity ID" });
+  }
+
   try {
-    const [[activity]] = await db.query(
-      `SELECT
-          a.*,
-          c.name      AS center_name,
-          c.city      AS center_city,
-          c.address   AS center_address,
-          c.phone     AS center_phone,
-          c.website   AS center_website,
-          c.instagram AS center_instagram
+    const [rows] = await db.query(
+      `SELECT 
+          a.id,
+          a.title,
+          a.category,
+          a.description,
+          a.min_age,
+          a.max_age,
+          a.level,
+          c.id AS center_id,
+          c.name AS center_name,
+          c.city,
+          c.address,
+          c.phone,
+          c.whatsapp,
+          c.website,
+          c.instagram
        FROM activities a
        JOIN centers c ON a.center_id = c.id
-       WHERE a.id = ?`,
+       WHERE a.id = ? AND a.is_active = TRUE AND c.is_active = TRUE`,
       [activityId]
     );
-    if (!activity) {
-      return res.status(404).json({ error: "Кружок не найден" });
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Activity not found" });
     }
 
-    const [slots] = await db.query(
-      `SELECT
-          s.weekday,
-          s.start_time,
-          s.end_time
-       FROM activity_groups g
-       JOIN schedule_slots s ON s.group_id = g.id
-       WHERE g.activity_id = ?
-       ORDER BY s.weekday, s.start_time`,
-      [activityId]
-    );
-
-    res.json({ activity, slots });
-  } catch (error) {
-    console.error("activity details error", error);
-    res.status(500).json({ error: "Ошибка получения данных кружка" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Activity details error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -330,34 +391,6 @@ router.post("/enroll", async (req, res) => {
 });
 
 
-/**
- * Школьное расписание:
- * GET  /api/parent/school-lessons?parentId=...
- * POST /api/parent/school-lessons  { kid_id, weekday, lesson_number, subject }
- */
-router.get("/school-lessons", async (req, res) => {
-  const parentId = getParentId(req);
-  try {
-    const [rows] = await db.query(
-      `SELECT sl.id,
-              sl.kid_id,
-              sl.weekday,
-              sl.lesson_number,
-              sl.subject,
-              sl.classroom,
-              k.full_name AS kid_name
-       FROM school_lessons sl
-       JOIN kids k ON sl.kid_id = k.id
-       WHERE k.parent_id = ?
-       ORDER BY k.full_name, sl.weekday, sl.lesson_number`,
-      [parentId]
-    );
-    res.json(rows);
-  } catch (error) {
-    console.error("school lessons get error", error);
-    res.status(500).json({ error: "Ошибка получения школьного расписания" });
-  }
-});
 
 router.post("/school-lessons", async (req, res) => {
   const parentId = getParentId(req);
@@ -386,6 +419,119 @@ router.post("/school-lessons", async (req, res) => {
   } catch (error) {
     console.error("school lessons post error", error);
     res.status(500).json({ error: "Ошибка сохранения школьного расписания" });
+  }
+});
+
+// ---------------------------------------------------------
+// ШКОЛЬНОЕ РАСПИСАНИЕ + КРУЖКИ В ОДНОМ СПИСКЕ
+// GET  /api/parent/school-lessons?parentId=1
+// POST /api/parent/school-lessons?parentId=1  (добавить школьный урок)
+// ---------------------------------------------------------
+
+router.get("/school-lessons", async (req, res) => {
+  const parentId = getParentId(req);
+
+  if (!parentId || isNaN(parentId)) {
+    return res.status(400).json({ error: "Invalid parent ID" });
+  }
+
+  try {
+    // 1) ШКОЛА
+    const [schoolRows] = await db.query(
+      `SELECT
+         sl.id,
+         k.id AS kid_id,
+         k.full_name AS kid_name,
+         sl.weekday,
+         sl.lesson_number,
+         sl.start_time,
+         sl.end_time,
+         sl.subject,
+         'school' AS item_type
+       FROM school_lessons sl
+       JOIN kids k ON sl.kid_id = k.id
+       WHERE k.parent_id = ?`,
+      [parentId]
+    );
+
+    // 2) КРУЖКИ
+    const [activityRows] = await db.query(
+      `SELECT
+         e.id,
+         k.id AS kid_id,
+         k.full_name AS kid_name,
+         g.weekday,
+         g.start_time,
+         g.end_time,
+         a.title,
+         a.category,
+         'activity' AS item_type,
+         c.name AS center_name
+       FROM enrollments e
+       JOIN kids k ON e.kid_id = k.id
+       JOIN activity_groups g ON e.group_id = g.id
+       JOIN activities a ON g.activity_id = a.id
+       JOIN centers c ON a.center_id = c.id
+       WHERE k.parent_id = ?
+         AND e.status = 'approved'`,
+      [parentId]
+    );
+
+    // ВСЕГДА возвращаем массив
+    const all = [...(schoolRows || []), ...(activityRows || [])].sort((a, b) => {
+      if (a.weekday !== b.weekday) return a.weekday - b.weekday;
+      const ta = a.start_time || "00:00:00";
+      const tb = b.start_time || "00:00:00";
+      return ta.localeCompare(tb);
+    });
+
+    res.json(all || []);
+  } catch (err) {
+    console.error("school-lessons get error", err);
+    // При ошибке возвращаем пустой массив
+    res.status(500).json([]);
+  }
+});
+
+router.post("/school-lessons", async (req, res) => {
+  const parentId = getParentId(req);
+  const { kid_id, weekday, lesson_number, subject, start_time, end_time } =
+    req.body;
+
+  if (!kid_id || !weekday || !subject) {
+    return res
+      .status(400)
+      .json({ error: "Нужно указать ребёнка, день недели и предмет" });
+  }
+
+  try {
+    // Проверим, что ребёнок принадлежит этому родителю
+    const [kidRows] = await db.query(
+      "SELECT id FROM kids WHERE id = ? AND parent_id = ?",
+      [kid_id, parentId]
+    );
+    if (!kidRows.length) {
+      return res.status(403).json({ error: "Нет доступа к этому ребёнку" });
+    }
+
+    await db.query(
+      `INSERT INTO school_lessons
+         (kid_id, weekday, lesson_number, start_time, end_time, subject)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        kid_id,
+        weekday,
+        lesson_number || null,
+        start_time || null,
+        end_time || null,
+        subject,
+      ]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("school-lessons post error", err);
+    res.status(500).json({ error: "Ошибка сохранения урока" });
   }
 });
 

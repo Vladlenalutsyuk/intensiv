@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Занятие — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-root">
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image" />
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <span id="auth-links">
+        <!-- Сюда подставится либо Войти, либо ссылка в ЛК -->
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main class="page-parent" style="padding-top:24px;">
+  <div class="container">
+    <div id="activity-info-card" class="split-card">
+      Загрузка информации о занятии...
+    </div>
+
+    <section style="margin-top:24px;">
+      <h2 class="section-title">Доступные группы</h2>
+      <div id="activity-groups-list">
+        <!-- сюда придут группы -->
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const API_BASE = "http://localhost:5000";
+  let CURRENT_USER = null;
+  let CURRENT_ACTIVITY_ID = null;
+
+  // Проверяем авторизацию
+  function checkAuth() {
+    const authLinks = document.getElementById("auth-links");
+    try {
+      const userData = localStorage.getItem("razvitime_user");
+      CURRENT_USER = userData ? JSON.parse(userData) : null;
+      
+      if (CURRENT_USER && CURRENT_USER.role === "parent") {
+        authLinks.innerHTML = `<a href="parent.html">Личный кабинет</a>`;
+      } else {
+        authLinks.innerHTML = `<a href="auth.html">Войти</a>`;
+      }
+    } catch (e) {
+      authLinks.innerHTML = `<a href="auth.html">Войти</a>`;
+    }
+  }
+
+  function getActivityId() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    
+    if (!id || id === 'undefined' || id === 'null' || isNaN(parseInt(id))) {
+      console.error('Invalid activity ID:', id);
+      showError('Неверный идентификатор занятия. Проверьте ссылку.');
+      return null;
+    }
+    
+    CURRENT_ACTIVITY_ID = parseInt(id);
+    return CURRENT_ACTIVITY_ID;
+  }
+
+  function showError(message, showBackLink = true) {
+    const infoBox = document.getElementById("activity-info-card");
+    const groupsBox = document.getElementById("activity-groups-list");
+    
+    const backUrl = CURRENT_USER && CURRENT_USER.role === "parent" ? "parent.html#search" : "search.html";
+    
+    infoBox.innerHTML = `
+      <div class="error-state" style="text-align: center; padding: 40px 20px; color: #666;">
+        <h3 style="color: #d32f2f; margin-bottom: 12px;">Ошибка</h3>
+        <p>${message}</p>
+        ${showBackLink ? `<a href="${backUrl}" class="btn btn-primary" style="margin-top: 16px; display: inline-block;">Вернуться к поиску</a>` : ''}
+      </div>
+    `;
+    
+    if (groupsBox) {
+      groupsBox.innerHTML = '';
+    }
+  }
+
+  function renderActivityInfo(activity, groups) {
+    const infoBox = document.getElementById("activity-info-card");
+    const groupsBox = document.getElementById("activity-groups-list");
+
+    if (!activity) {
+      showError("Занятие не найдено");
+      return;
+    }
+
+    // Рендерим информацию о занятии
+    infoBox.innerHTML = `
+      <h1 class="section-title">${activity.title || 'Название не указано'}</h1>
+      <p class="section-subtitle">
+        <a href="center_info.html?id=${activity.center_id}">${activity.center_name || 'Центр'}</a>
+        ${activity.city ? ' · ' + activity.city : ''}
+      </p>
+
+      <div style="margin-top:12px;">
+        <h3>О занятии</h3>
+        <p>${activity.description || "Описание пока не заполнено."}</p>
+      </div>
+
+      <div style="margin-top:12px;">
+        <h3>Информация</h3>
+        <ul class="split-card-steps">
+          ${activity.category ? `<li>Категория: ${activity.category}</li>` : ''}
+          ${activity.min_age || activity.max_age ? 
+            `<li>Возраст: ${activity.min_age || '?'}–${activity.max_age || '?'} лет</li>` : ''}
+          ${activity.level ? `<li>Уровень: ${activity.level}</li>` : ''}
+        </ul>
+      </div>
+
+      <div style="margin-top:12px;">
+        <h3>Контакты центра</h3>
+        <ul class="split-card-steps">
+          ${activity.phone ? `<li>Телефон: <a href="tel:${activity.phone}">${activity.phone}</a></li>` : ''}
+          ${activity.whatsapp ? `<li>WhatsApp: ${activity.whatsapp}</li>` : ''}
+          ${activity.website ? `<li>Сайт: <a href="${activity.website}" target="_blank">${activity.website}</a></li>` : ''}
+          ${activity.instagram ? `<li>Instagram: <a href="https://instagram.com/${activity.instagram.replace('@', '')}" target="_blank">${activity.instagram}</a></li>` : ''}
+          ${activity.address ? `<li>Адрес: ${activity.address}</li>` : ''}
+        </ul>
+      </div>
+    `;
+
+    // Рендерим список групп
+    if (!groups || !groups.length) {
+      groupsBox.innerHTML = '<p class="no-data" style="text-align: center; color: #666; padding: 40px 20px; font-style: italic;">Для этого занятия пока нет доступных групп.</p>';
+    } else {
+      groupsBox.innerHTML = groups
+        .map(group => `
+          <div class="split-card" style="margin-bottom: 16px;">
+            <div>
+              <h3>${group.name || 'Группа'}</h3>
+              <div class="activity-meta">
+                ${getWeekdayName(group.weekday)} ${group.start_time?.slice(0, 5) || '--:--'}–${group.end_time?.slice(0, 5) || '--:--'}
+                ${group.min_age || group.max_age ? 
+                  ` · ${group.min_age || '?'}–${group.max_age || '?'} лет` : ''}
+                ${group.capacity ? ` · до ${group.capacity} чел.` : ''}
+              </div>
+              ${group.price ? `<div style="margin-top: 8px; font-size: 1.2em; font-weight: bold; color: #2e7d32;">${group.price} ₽</div>` : ''}
+            </div>
+            ${CURRENT_USER && CURRENT_USER.role === "parent" ? `
+              <div class="split-card-footer">
+                <button class="btn btn-primary btn-sm" onclick="enrollToGroup(${group.id})">
+                  📝 Записать ребенка
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `)
+        .join('');
+    }
+  }
+
+  // Функция записи в группу
+  async function enrollToGroup(groupId) {
+    if (!CURRENT_USER || CURRENT_USER.role !== "parent") {
+      alert('Для записи необходимо войти в личный кабинет родителя');
+      window.location.href = 'auth.html#parent';
+      return;
+    }
+
+    try {
+      // Получим список детей родителя
+      const kidsRes = await fetch(`${API_BASE}/api/parent/kids?parentId=${CURRENT_USER.parent_id}`);
+      const kids = await kidsRes.json();
+
+      if (!kids || !kids.length) {
+        alert('Сначала добавьте детей в личном кабинете');
+        window.location.href = 'parent.html#kids';
+        return;
+      }
+
+      // Покажем диалог выбора ребенка
+      showGroupEnrollmentDialog(groupId, kids);
+      
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      alert('Ошибка при записи на занятие');
+    }
+  }
+
+  function showGroupEnrollmentDialog(groupId, kids) {
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    `;
+    
+    dialog.innerHTML = `
+      <div style="background: white; padding: 24px; border-radius: 8px; max-width: 400px; width: 90%;">
+        <h3 style="margin-top: 0;">Запись в группу</h3>
+        
+        <div class="form-group">
+          <label>Выберите ребенка:</label>
+          <select id="enroll-kid-select" class="filter-select" style="width: 100%; margin-top: 8px;">
+            ${kids.map(kid => `<option value="${kid.id}">${kid.full_name}</option>`).join('')}
+          </select>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style]').remove()">Отмена</button>
+          <button class="btn btn-primary btn-sm" id="confirm-enroll-btn">Записаться</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(dialog);
+    
+    document.getElementById('confirm-enroll-btn').addEventListener('click', async () => {
+      const kidId = document.getElementById('enroll-kid-select').value;
+      
+      await confirmEnrollment(kidId, groupId);
+      dialog.remove();
+    });
+  }
+
+  async function confirmEnrollment(kidId, groupId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/parent/enroll`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          kid_id: parseInt(kidId),
+          group_id: parseInt(groupId)
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Заявка на запись отправлена! Центр свяжется с вами для подтверждения.');
+      } else {
+        alert(result.error || 'Ошибка при записи');
+      }
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      alert('Ошибка при отправке заявки');
+    }
+  }
+
+  function getWeekdayName(weekday) {
+    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    return days[weekday] || '--';
+  }
+
+  async function loadActivity() {
+    const activityId = getActivityId();
+    
+    if (!activityId) {
+      return;
+    }
+
+    try {
+      const [activityRes, groupsRes] = await Promise.all([
+        fetch(`${API_BASE}/api/public/activities/${activityId}`),
+        fetch(`${API_BASE}/api/public/activities/${activityId}/groups`)
+      ]);
+
+      if (!activityRes.ok) {
+        throw new Error("Занятие не найдено");
+      }
+
+      const activity = await activityRes.json();
+      const groups = groupsRes.ok ? await groupsRes.json() : [];
+
+      renderActivityInfo(activity, groups);
+      
+    } catch (error) {
+      console.error('Activity load error:', error);
+      showError(error.message || "Не удалось загрузить информацию о занятии");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    checkAuth();
+    loadActivity();
+  });
+</script>
+</body>
+</html>

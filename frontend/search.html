@@ -18,9 +18,7 @@
     </div>
     <nav class="nav-links">
       <a href="index.html">Главная</a>
-      <a href="search.html">Найти занятия</a>
-      <a href="schedule.html">Умное расписание</a>
-      <a href="reminders.html">Напоминания</a>
+      <a href="auth.html">Войти</a>
     </nav>
   </div>
 </header>
@@ -34,18 +32,19 @@
 
       <div class="filter-group">
         <label class="filter-label">Возраст ребёнка</label>
-        <select class="filter-select">
-          <option>3–5 лет</option>
-          <option>6–8 лет</option>
-          <option>9–12 лет</option>
-          <option>13–17 лет</option>
+        <select class="filter-select" id="filter-age">
+          <option value="">Любой возраст</option>
+          <option value="3">3–5 лет</option>
+          <option value="6">6–8 лет</option>
+          <option value="9">9–12 лет</option>
+          <option value="13">13–17 лет</option>
         </select>
       </div>
 
       <div class="filter-group">
         <label class="filter-label">Направление</label>
-        <select class="filter-select">
-          <option>Любое</option>
+        <select class="filter-select" id="filter-category">
+          <option value="">Любое</option>
           <option>Спорт</option>
           <option>Творчество</option>
           <option>Наука и технологии</option>
@@ -54,97 +53,33 @@
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Формат</label>
-        <select class="filter-select">
-          <option>Любой</option>
-          <option>Групповые</option>
-          <option>Индивидуальные</option>
-        </select>
+        <label class="filter-label">Город</label>
+        <input class="filter-input" type="text" id="filter-city" placeholder="Например, Симферополь">
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Район / школа</label>
-        <input class="filter-input" type="text" placeholder="Например, Гимназия №1">
-      </div>
-
-      <div class="filter-group filter-checkbox-row">
-        <input type="checkbox" id="only-free">
-        <label for="only-free">Показывать только группы с местами</label>
+        <label class="filter-label">Поиск</label>
+        <input class="filter-input" type="text" id="filter-text" placeholder="Название занятия или центра">
       </div>
 
       <div class="filters-actions">
-        <button class="btn btn-primary btn-sm">Применить фильтры</button>
-        <button class="btn btn-secondary btn-sm">Сбросить</button>
+        <button class="btn btn-primary btn-sm" id="search-activities-btn">Применить фильтры</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Сбросить</button>
       </div>
     </aside>
 
     <!-- Результаты -->
     <section>
       <div class="search-header-line">
-        <h2>Найдено 3 занятия (демо)</h2>
-        <p>Для примера показаны несколько программ. Подключение к реальной БД можно добавить позже.</p>
+        <h2>Найденные занятия</h2>
+        <div class="search-controls">
+          <input type="text" id="simple-search-input" placeholder="Быстрый поиск..." class="search-input">
+          <button class="btn btn-primary btn-sm" id="simple-search-btn">Найти</button>
+        </div>
       </div>
 
-      <div class="activities-list">
-        <article class="activity-card">
-          <div class="activity-main">
-            <h3>Робототехника 7–10 лет</h3>
-            <div class="activity-meta">Центр «ТехноКидс» · Симферополь</div>
-            <div class="activity-tags">
-              <span class="tag-chip">Наука и технологии</span>
-              <span class="tag-chip">Групповое</span>
-              <span class="tag-chip">Вт/Чт 17:00</span>
-            </div>
-          </div>
-          <div class="activity-side">
-            <div class="activity-price">от 3 000 ₽ / мес</div>
-            <div class="activity-rating">⭐ 4.8 · 24 отзывов</div>
-            <div>
-              <button class="btn btn-primary btn-sm">➕ В расписание</button>
-              <button class="btn btn-secondary btn-sm">⭐ В избранное</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="activity-card">
-          <div class="activity-main">
-            <h3>Плавание для детей 6–9 лет</h3>
-            <div class="activity-meta">СК «Дельфин» · бассейн на ул. Летней</div>
-            <div class="activity-tags">
-              <span class="tag-chip">Спорт</span>
-              <span class="tag-chip">Групповое</span>
-              <span class="tag-chip">Пн/Ср/Пт 18:00</span>
-            </div>
-          </div>
-          <div class="activity-side">
-            <div class="activity-price">от 2 500 ₽ / мес</div>
-            <div class="activity-rating">⭐ 4.6 · 18 отзывов</div>
-            <div>
-              <button class="btn btn-primary btn-sm">➕ В расписание</button>
-              <button class="btn btn-secondary btn-sm">⭐ В избранное</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="activity-card">
-          <div class="activity-main">
-            <h3>Творческая студия «АртMix»</h3>
-            <div class="activity-meta">Детский центр «Солнечный город»</div>
-            <div class="activity-tags">
-              <span class="tag-chip">Творчество</span>
-              <span class="tag-chip">Младшие школьники</span>
-              <span class="tag-chip">Сб 11:00</span>
-            </div>
-          </div>
-          <div class="activity-side">
-            <div class="activity-price">разовое занятие — 700 ₽</div>
-            <div class="activity-rating">⭐ 4.9 · 32 отзыва</div>
-            <div>
-              <button class="btn btn-primary btn-sm">➕ В расписание</button>
-              <button class="btn btn-secondary btn-sm">⭐ В избранное</button>
-            </div>
-          </div>
-        </article>
+      <div id="activities-results" class="activities-list">
+        <!-- Результаты загрузятся через JavaScript -->
       </div>
     </section>
   </div>
@@ -155,12 +90,100 @@
     <div>© 2025 РазвиТайм.</div>
     <div class="footer-links">
       <a href="#">О платформе</a>
-      <a href="#">Для родителей</a>
-      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
     </div>
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script>
+  const API_BASE = "http://localhost:5000";
+
+  function resetFilters() {
+    document.getElementById('filter-age').value = '';
+    document.getElementById('filter-category').value = '';
+    document.getElementById('filter-city').value = '';
+    document.getElementById('filter-text').value = '';
+    loadActivities();
+  }
+
+async function loadActivities() {
+  const resultsContainer = document.getElementById('activities-results');
+  resultsContainer.innerHTML = '<p>Загрузка...</p>';
+
+  try {
+    const response = await fetch(`${API_BASE}/api/public/activities`);
+    const activities = await response.json();
+
+    if (!activities || !activities.length) {
+      resultsContainer.innerHTML = '<p>Занятий не найдено</p>';
+      return;
+    }
+
+    resultsContainer.innerHTML = activities.map(activity => `
+      <article class="activity-card">
+        <div class="activity-main">
+          <h3>${activity.title || 'Без названия'}</h3>
+          <div class="activity-meta">
+            <a href="center_info.html?id=${activity.center_id}" class="link-as-button">
+              ${activity.center_name || 'Центр'}
+            </a> · ${activity.city || 'Город не указан'}
+          </div>
+          <div class="activity-tags">
+            <span class="tag-chip">${activity.category || 'Без категории'}</span>
+            ${activity.min_age || activity.max_age ? 
+              `<span class="tag-chip">${activity.min_age || '?'}–${activity.max_age || '?'} лет</span>` : 
+              ''}
+          </div>
+          <p class="activity-desc">
+            ${activity.description ? 
+              (activity.description.length > 140 ? 
+                activity.description.substring(0, 140) + '...' : 
+                activity.description) : 
+              'Описание отсутствует'}
+          </p>
+        </div>
+        <div class="activity-side">
+          <div class="activity-price">Цена по запросу</div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="viewActivity(${activity.id})">
+              Подробнее
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="viewCenter(${activity.center_id})" style="margin-top: 8px;">
+              О центре
+            </button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  } catch (error) {
+    console.error('Error loading activities:', error);
+    resultsContainer.innerHTML = '<p>Ошибка загрузки занятий</p>';
+  }
+}
+
+// Добавьте эти функции
+function viewActivity(activityId) {
+  window.location.href = `activity.html?id=${activityId}`;
+}
+
+function viewCenter(centerId) {
+  window.location.href = `center_info.html?id=${centerId}`;
+}
+    
+
+  // Инициализация поиска
+  document.addEventListener('DOMContentLoaded', function() {
+    loadActivities();
+    
+    document.getElementById('search-activities-btn').addEventListener('click', loadActivities);
+    document.getElementById('simple-search-btn').addEventListener('click', loadActivities);
+    
+    document.getElementById('simple-search-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        loadActivities();
+      }
+    });
+  });
+</script>
 </body>
 </html>

@@ -4,13 +4,123 @@
   <meta charset="UTF-8">
   <title>Кабинет родителя — РазвиТайм</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Дополнительные стили для родительской страницы */
+    .parent-section {
+      display: none;
+    }
+    
+    .parent-section.active {
+      display: block;
+    }
+    
+    .tab-btn.active {
+      background-color: #52a655;
+      color: white;
+    }
+    
+    .split-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .activities-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .activity-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .activity-tags {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    
+    .tag-chip {
+      background: #f0f4ff;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 14px;
+    }
+    
+    .upcoming-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .upcoming-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .reviews-carousel {
+      position: relative;
+      height: 140px;
+      overflow: hidden;
+    }
+    
+    .review-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    
+    .review-slide.active {
+      opacity: 1;
+    }
+    
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .schedule-table th, .schedule-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    
+    .schedule-badge {
+      padding: 6px;
+      margin: 4px 0;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .kid-colors-list {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .kid-color-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
 </head>
 <body>
 
 <header class="app-header">
   <div class="container app-header-inner">
     <div class="logo-block">
-      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image">
       <div class="logo-texts">
         <div class="logo-text-main">РазвиТайм</div>
         <div class="logo-text-sub">умное расписание для семьи</div>
@@ -18,20 +128,22 @@
     </div>
 
     <nav class="nav-links">
-      <a href="index.html">Главная</a>
-      <a href="search.html">Найти занятия</a>
+      <div class="nav-notifications">
+        <button
+          class="icon-button"
+          type="button"
+          id="notifications-bell"
+          title="Уведомления"
+        >
+          🔔
+          <span class="notifications-badge" id="notifications-badge" hidden></span>
+        </button>
 
-      <!-- значок колокольчика → страница с напоминаниями -->
-      <button
-        class="icon-button"
-        type="button"
-        title="Напоминания"
-        onclick="window.location.href='reminders.html'"
-      >
-        🔔
-      </button>
+        <div class="notifications-dropdown" id="notifications-dropdown">
+          <!-- Список уведомлений подставит JS -->
+        </div>
+      </div>
 
-      <!-- кнопка выхода -->
       <button class="btn btn-outline btn-sm" type="button" id="logout-btn">
         Выйти
       </button>
@@ -44,30 +156,65 @@
   <div class="container parent-layout">
     <!-- Боковое меню -->
     <aside class="parent-sidebar">
-      <button class="tab-btn active" data-section="parent-dashboard">
-        Главное
+      <button class="tab-btn active" data-section="dashboard-section">
+        Главная
       </button>
-      <button class="tab-btn" data-section="parent-kids">
+      <button class="tab-btn" data-section="kids-section">
         Мои дети
       </button>
-      <button class="tab-btn" data-section="parent-schedule">
+      <button class="tab-btn" data-section="schedule-section">
         Расписание
       </button>
-      <button class="tab-btn" data-section="parent-profile">
+      <button class="tab-btn" data-section="search-section">
+        Найти занятия
+      </button>
+      <button class="tab-btn" data-section="profile-section">
         Мой профиль
+      </button>
+      <button class="tab-btn" data-section="help-section">
+        Помощь
       </button>
     </aside>
 
     <!-- Контент -->
     <section class="parent-main">
-      <!-- 2.1. Дашборд -->
-      <section id="parent-dashboard" class="parent-section">
-        <div id="parent-greeting"></div>
-        <div id="parent-upcoming" class="upcoming-card" style="margin-top:16px;"></div>
+      <!-- 2.1. Дашборд (Главная) -->
+      <section id="dashboard-section" class="parent-section active">
+        <div class="section-header">
+          <h1 class="section-title">Главное</h1>
+          <p class="section-subtitle">
+            Здесь родитель управляет детьми, расписанием и напоминаниями на платформе РазвиТайм.
+          </p>
+        </div>
+
+        <div class="split-cards">
+          <!-- Левый блок: приветствие + о платформе + инструкция -->
+          <div id="parent-greeting" class="split-card">
+            Загрузка данных родителя...
+          </div>
+
+          <!-- Правый блок: ближайшие занятия + карусель отзывов -->
+          <div class="split-card">
+            <h3>Ближайшие занятия</h3>
+            <div id="parent-upcoming">
+              Загрузка ближайших занятий...
+            </div>
+
+            <div class="reviews-block">
+              <div class="reviews-header">
+                <h3>Отзывы родителей о центрах</h3>
+                <div class="reviews-dots" id="reviews-dots"></div>
+              </div>
+              <div class="reviews-carousel" id="reviews-carousel">
+                <!-- Слайды будут подставлены JS -->
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- 2.3. Мои дети -->
-      <section id="parent-kids" class="parent-section" style="display:none;">
+      <section id="kids-section" class="parent-section">
         <div class="section-header">
           <h2>Мои дети</h2>
           <button class="btn btn-primary btn-sm" id="add-kid-btn">+ Добавить ребёнка</button>
@@ -90,8 +237,8 @@
             <label>Пол</label>
             <select id="kid-gender">
               <option value="">Не указано</option>
-              <option value="girl">Девочка</option>
-              <option value="boy">Мальчик</option>
+              <option value="female">Девочка</option>
+              <option value="male">Мальчик</option>
             </select>
           </div>
           <div class="auth-field">
@@ -106,51 +253,199 @@
       </section>
 
       <!-- 2.5. Расписание (школьное + кружки) -->
-      <section id="parent-schedule" class="parent-section" style="display:none;">
-        <h2>Расписание детей</h2>
-        <p class="section-subtitle">
-          Здесь будет умное расписание: школьные уроки + кружки. Пока добавим школьное расписание.
-        </p>
-
-        <!-- форма добавления школьных уроков -->
-        <div class="reminders-card" style="margin-top:16px;">
-          <h3>Добавить школьный урок</h3>
-          <div class="auth-field">
-            <label>Ребёнок</label>
-            <select id="school-kid-select"></select>
-          </div>
-          <div class="auth-field">
-            <label>День недели</label>
-            <select id="school-weekday">
-              <option value="1">Понедельник</option>
-              <option value="2">Вторник</option>
-              <option value="3">Среда</option>
-              <option value="4">Четверг</option>
-              <option value="5">Пятница</option>
-              <option value="6">Суббота</option>
-              <option value="7">Воскресенье</option>
-            </select>
-          </div>
-          <div class="auth-field">
-            <label>Номер урока</label>
-            <input type="number" id="school-lesson-number" min="1" max="10">
-          </div>
-          <div class="auth-field">
-            <label>Предмет</label>
-            <input type="text" id="school-subject">
-          </div>
-          <button class="btn btn-primary btn-sm" id="school-add-btn">Добавить урок</button>
+      <section id="schedule-section" class="parent-section">
+        <div class="section-header">
+          <h1 class="section-title">Расписание детей</h1>
+          <p class="section-subtitle">
+            Общий вид: школьные уроки + кружки, по дням недели.
+          </p>
         </div>
 
-        <div id="school-lessons-list" class="upcoming-card" style="margin-top:16px;">
-          Загрузка школьного расписания...
+        <!-- Панель управления расписанием -->
+        <div class="split-card">
+          <div class="schedule-controls-row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div>
+              <label class="filter-label" for="schedule-kid-filter">Ребёнок</label>
+              <select id="schedule-kid-filter" class="filter-select">
+                <option value="all">Все дети</option>
+                <!-- остальное подставит JS -->
+              </select>
+            </div>
+
+            <div>
+              <span class="filter-label">Вид расписания</span>
+              <div class="schedule-view-toggle">
+                <button class="view-btn active" data-view="day">День</button>
+                <button class="view-btn" data-view="week">Неделя</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="filter-label">Экспорт</span>
+              <button class="btn btn-outline btn-sm" id="export-schedule-btn">
+                Экспортировать как картинку
+              </button>
+            </div>
+          </div>
+
+          <!-- фильтр типов занятий -->
+          <div class="schedule-filters-row" style="margin-top:10px;">
+            <div>
+              <span class="filter-label">Тип занятий</span>
+              <div class="schedule-type-toggle">
+                <label><input type="radio" name="schedule-type" value="all" checked> Все вместе</label>
+                <label><input type="radio" name="schedule-type" value="school"> Только школа</label>
+                <label><input type="radio" name="schedule-type" value="extras"> Только кружки</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Цвета детей -->
+        <div class="split-card" id="kid-colors-card" style="margin-top:12px; display:none;">
+          <h3 style="margin-top:0;">Цвета детей</h3>
+          <p class="section-subtitle">
+            Каждому ребёнку можно назначить цвет, которым будут подсвечиваться его занятия в расписании.
+          </p>
+          <div id="kid-colors-list" class="kid-colors-list"></div>
+        </div>
+
+        <!-- Таблица расписания -->
+        <div class="split-card" style="margin-top:16px;">
+          <div id="schedule-table-wrapper" class="schedule-table-wrapper">
+            Загрузка расписания...
+          </div>
+        </div>
+
+        <!-- Блок школьного расписания -->
+        <div class="split-card" style="margin-top:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>Школьное расписание</h3>
+            <button class="btn btn-secondary btn-sm" id="toggle-school-form-btn">
+              Добавить/Изменить школьное расписание
+            </button>
+          </div>
+
+          <div id="school-lessons-list" class="section-subtitle" style="margin-bottom:10px;">
+            Школьные уроки учитываются в общей таблице расписания выше.
+          </div>
+
+          <div id="school-form-container" style="display:none;">
+            <div class="schedule-school-form">
+              <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <label>
+                  Ребёнок
+                  <select id="school-kid-select"></select>
+                </label>
+
+                <label>
+                  День недели
+                  <select id="school-weekday">
+                    <option value="1">Понедельник</option>
+                    <option value="2">Вторник</option>
+                    <option value="3">Среда</option>
+                    <option value="4">Четверг</option>
+                    <option value="5">Пятница</option>
+                    <option value="6">Суббота</option>
+                    <option value="7">Воскресенье</option>
+                  </select>
+                </label>
+
+                <label>
+                  Номер урока
+                  <input type="number" id="school-lesson-number" min="1" max="10" placeholder="1, 2, 3">
+                </label>
+
+                <label>
+                  Предмет
+                  <input type="text" id="school-subject" placeholder="Математика, Русский язык...">
+                </label>
+              </div>
+
+              <div style="margin-top:12px;">
+                <button class="btn btn-primary btn-sm" id="school-add-btn">
+                  + Добавить урок
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.7. Найти занятия -->
+      <section id="search-section" class="parent-section">
+        <div class="section-header">
+          <h1 class="section-title">Найти занятия</h1>
+          <p class="section-subtitle">
+            Посмотрите все доступные кружки, а затем уточните поиск фильтрами.
+          </p>
+        </div>
+
+        <div class="search-layout" style="display: flex; gap: 20px;">
+          <aside class="split-card" style="width: 300px;">
+            <h3>Фильтры</h3>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filter-text">Обычный поиск</label>
+              <div class="filter-row-inline" style="display: flex; gap: 8px;">
+                <input id="filter-text"
+                       class="filter-input"
+                       type="text"
+                       placeholder="Название кружка, центра или адрес"
+                       style="flex: 1;">
+                <button class="btn btn-secondary btn-sm" id="simple-search-btn">
+                  Найти
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filter-city">Город</label>
+              <input id="filter-city" class="filter-input" type="text" placeholder="Например, Симферополь">
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filter-age">Возраст ребёнка</label>
+              <input id="filter-age" class="filter-input" type="number" min="0" placeholder="Например, 8">
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filter-category">Категория</label>
+              <select id="filter-category" class="filter-select">
+                <option value="any">Любая</option>
+                <option value="творчество">Творчество</option>
+                <option value="спорт">Спорт</option>
+                <option value="наука">Наука</option>
+                <option value="языки">Языки</option>
+              </select>
+            </div>
+
+            <div class="filters-actions" style="margin-top: 16px;">
+              <button class="btn btn-primary btn-sm" id="search-activities-btn">
+                Применить фильтры
+              </button>
+            </div>
+          </aside>
+
+          <section style="flex: 1;">
+            <div class="search-header-line">
+              <div>
+                <h2>Доступные занятия</h2>
+                <p>Сначала показываем все кружки, затем — только подходящие по фильтрам.</p>
+              </div>
+            </div>
+
+            <div id="activities-results" class="activities-list">
+              Загрузка занятий...
+            </div>
+          </section>
         </div>
       </section>
 
       <!-- 2.2. Мой профиль -->
-      <section id="parent-profile" class="parent-section" style="display:none;">
+      <section id="profile-section" class="parent-section">
         <h2>Мой профиль</h2>
-        <div class="reminders-card">
+        <div class="split-card">
           <div class="auth-field">
             <label>Город</label>
             <input type="text" id="profile-city">
@@ -180,23 +475,55 @@
           </button>
         </div>
       </section>
+
+      <!-- 2.7. Помощь -->
+      <section id="help-section" class="parent-section">
+        <div class="section-header">
+          <h2 class="section-title">Помощь</h2>
+          <p class="section-subtitle">
+            Полная инструкция по использованию личного кабинета родителя и контакты поддержки.
+          </p>
+        </div>
+
+        <div class="split-cards" style="display: flex; gap: 20px; flex-wrap: wrap;">
+          <!-- Инструкция -->
+          <div class="split-card" style="flex: 1; min-width: 300px;">
+            <h3>Как пользоваться личным кабинетом</h3>
+            <ol class="split-card-steps">
+              <li>Перейдите во вкладку «Мои дети» и добавьте профили всех детей (ФИО, дата рождения, фото).</li>
+              <li>Во вкладке «Расписание» через блок «Школьное расписание» внесите уроки по дням и предметам.</li>
+              <li>Во вкладке «Найти занятия» подберите кружки по городу, возрасту и направлению.</li>
+              <li>Запишите ребёнка на кружок (через кнопку «Подробнее» / «Записаться» в карточке занятия, если подключен бэкенд).</li>
+              <li>Следите за общим расписанием «школа + кружки» во вкладке «Расписание» (виды День / Неделя).</li>
+              <li>Создавайте напоминания о важных занятиях и событиях — они появятся в системе уведомлений (иконка колокольчика).</li>
+              <li>При необходимости экспортируйте расписание в картинку и отправляйте родственникам или распечатывайте.</li>
+            </ol>
+            <p class="section-subtitle">
+              Все данные хранятся в вашем личном кабинете и привязаны к учётной записи родителя.
+            </p>
+          </div>
+
+          <!-- Поддержка -->
+          <div class="split-card" style="flex: 1; min-width: 300px;">
+            <h3>Поддержка</h3>
+            <p class="section-subtitle">
+              Если что-то не работает, есть вопросы по расписанию или вы нашли ошибку, свяжитесь с нами:
+            </p>
+            <ul class="split-card-steps">
+              <li>E-mail: <a href="mailto:support@razvitime.demo">support@razvitime.demo</a></li>
+              <li>Телефон: <a href="tel:+7-900-000-00-00">+7 (900) 000-00-00</a> (будни 10:00–18:00)</li>
+              <li>Чат: кнопка «Написать в чат» в правом нижнем углу (можно добавить позже, как виджет).</li>
+            </ul>
+            <p class="section-subtitle">
+              В сообщении удобно сразу указать ФИО ребёнка, город и кратко описать проблему — так мы быстрее поможем.
+            </p>
+          </div>
+        </div>
+      </section>
+
     </section>
   </div>
 </main>
-
-<footer class="app-footer">
-  <div class="container app-footer-inner">
-    <div>© 2025 РазвиТайм.</div>
-    <div class="footer-links">
-      <a href="#">О платформе</a>
-      <a href="#">Для родителей</a>
-      <a href="#">Для центров</a>
-    </div>
-  </div>
-</footer>
-
-<script src="parent.js"></script>
-
 
 <footer class="app-footer">
   <div class="container app-footer-inner">
@@ -210,45 +537,657 @@
   </div>
 </footer>
 
-<script src="parent.js"></script>
+<script>
+// ВСТРОЕННЫЙ JavaScript ДЛЯ ДЕМО РЕЖИМА
+document.addEventListener("DOMContentLoaded", () => {
+  console.log('✅ Parent page loaded in DEMO mode');
+  
+  // Демо данные
+  const DEMO_PARENT = {
+    name: "Иван Иванов",
+    city: "Симферополь",
+    phone: "+7-999-000-00-00",
+    telegram: "@ivanov",
+    whatsapp: "+7-999-000-00-00",
+    extra_email: "ivan.backup@mail.ru",
+    avatar_url: ""
+  };
+  
+  let DEMO_KIDS = [
+    {
+      id: 1,
+      full_name: "Мария Иванова",
+      birth_date: "2016-05-10",
+      gender: "female",
+      photo_url: "",
+      age: 8
+    },
+    {
+      id: 2,
+      full_name: "Алексей Иванов",
+      birth_date: "2019-09-22",
+      gender: "male",
+      photo_url: "",
+      age: 5
+    }
+  ];
+  
+  const DEMO_ACTIVITIES = [
+    {
+      id: 1,
+      center_id: 1,
+      center_name: "Демо Центр развития детей",
+      title: "Творческая мастерская",
+      category: "творчество",
+      description: "Рисование, лепка и поделки для детей 6–10 лет.",
+      min_age: 6,
+      max_age: 10,
+      price: "Цена по запросу",
+      city: "Симферополь",
+      address: "ул. Пушкина, 10"
+    },
+    {
+      id: 2,
+      center_id: 1,
+      center_name: "Демо Центр развития детей",
+      title: "Гимнастика для детей",
+      category: "спорт",
+      description: "Общая физическая подготовка и растяжка.",
+      min_age: 5,
+      max_age: 9,
+      price: "1500 руб/мес",
+      city: "Симферополь",
+      address: "ул. Пушкина, 10"
+    }
+  ];
+  
+  // Инициализация
+  init();
+  
+  function init() {
+    setupTabs();
+    loadDashboard();
+    loadKids();
+    setupKidsForm();
+    setupSearch();
+    loadProfile();
+    setupProfileSave();
+    loadSchoolLessons();
+    setupScheduleControls();
+    setupSchoolForm();
+    setupNotificationsBell();
+    
+    // Кнопка выхода
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("razvitime_user");
+        window.location.href = "index.html";
+      });
+    }
+  }
+  
+  function setupTabs() {
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const sections = document.querySelectorAll(".parent-section");
+    
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Убираем активный класс у всех кнопок и секций
+        tabButtons.forEach(b => b.classList.remove("active"));
+        sections.forEach(s => s.classList.remove("active"));
+        
+        // Добавляем активный класс текущей кнопке
+        btn.classList.add("active");
+        
+        // Показываем соответствующую секцию
+        const sectionId = btn.getAttribute("data-section");
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.classList.add("active");
+          
+          // Загружаем данные для активной вкладки
+          switch(sectionId) {
+            case 'dashboard-section':
+              loadDashboard();
+              break;
+            case 'kids-section':
+              loadKids();
+              break;
+            case 'schedule-section':
+              loadSchoolLessons();
+              break;
+            case 'search-section':
+              setupSearch();
+              break;
+            case 'profile-section':
+              loadProfile();
+              break;
+          }
+        }
+      });
+    });
+    
+    // Активируем первую вкладку
+    if (tabButtons.length > 0) {
+      tabButtons[0].click();
+    }
+  }
+  
+  function loadDashboard() {
+    const greetingBox = document.getElementById("parent-greeting");
+    const upcomingBox = document.getElementById("parent-upcoming");
+    
+    if (greetingBox) {
+      greetingBox.innerHTML = `
+        <div class="dashboard-hero">
+          <h2 style="margin-bottom:8px; color: #2c4a78;">
+            Здравствуйте, ${DEMO_PARENT.name}!
+          </h2>
+          <p style="color: #666; margin-bottom: 16px;">
+            РазвиТайм — это онлайн-помощник для родителей: здесь можно
+            вести школьное расписание, записывать детей на кружки и
+            получать напоминания о занятиях в одном удобном месте.
+          </p>
+          
+          <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h3 style="margin-top: 0; color: #2c4a78;">Что умеет кабинет родителя</h3>
+            <ul style="padding-left: 20px; color: #666;">
+              <li>Добавлять детей и хранить их основные данные.</li>
+              <li>Вести школьное расписание по предметам и урокам.</li>
+              <li>Подбирать кружки и секции в городе в разделе «Найти занятия».</li>
+              <li>Записывать ребёнка в группы центров (через заявки).</li>
+              <li>Видеть общее расписание «школа + кружки» по дням недели.</li>
+              <li>Настраивать напоминания о занятиях.</li>
+              <li>Экспортировать расписание ребёнка в картинку для распечатки или отправки бабушке 😊</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+    
+    if (upcomingBox) {
+      upcomingBox.innerHTML = `
+        <ul class="upcoming-list">
+          <li>
+            <strong>Мария Иванова</strong> · Творческая мастерская
+            <br>
+            2025-02-20, 17:00 · Демо Центр развития детей
+          </li>
+          <li>
+            <strong>Алексей Иванов</strong> · Гимнастика для детей
+            <br>
+            2025-02-21, 16:00 · Демо Центр развития детей
+          </li>
+        </ul>
+      `;
+    }
+  }
+  
+  function loadKids() {
+    const list = document.getElementById("kids-list");
+    if (!list) return;
+    
+    if (DEMO_KIDS.length === 0) {
+      list.innerHTML = "<p>Пока нет добавленных детей.</p>";
+      return;
+    }
+    
+    list.innerHTML = DEMO_KIDS
+      .map((kid) => {
+        const age = kid.birth_date ? calcAge(kid.birth_date) : "—";
+        return `
+        <div class="split-card">
+          <div style="display:flex; gap:12px;">
+            <div>
+              ${
+                kid.photo_url
+                  ? `<img src="${kid.photo_url}" alt="${kid.full_name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;">`
+                  : `<div style="width:60px;height:60px;border-radius:50%;background:#e4f6e4;display:flex;align-items:center;justify-content:center;font-size:24px;">${
+                      kid.full_name[0] || "?"
+                    }</div>`
+              }
+            </div>
+            <div>
+              <h3 style="margin: 0 0 4px 0;">${kid.full_name}</h3>
+              <p style="color: #666; margin: 0;">Возраст: ${age}</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-secondary btn-sm" onclick="window.editKidDemo(${kid.id}, '${kid.full_name.replace(/'/g, "\\'")}', '${kid.birth_date || ""}', '${kid.gender || ""}', '${kid.photo_url || ""}')">
+              Редактировать
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="window.deleteKidDemo(${kid.id})">Удалить</button>
+          </div>
+        </div>`;
+      })
+      .join("");
+  }
+  
+  window.editKidDemo = function(id, name, birth, gender, photo) {
+    window.editingKidId = id;
+    const formBlock = document.getElementById("kid-form-block");
+    const title = document.getElementById("kid-form-title");
+    
+    title.textContent = "Редактировать ребёнка";
+    document.getElementById("kid-name").value = name || "";
+    document.getElementById("kid-birth").value = birth || "";
+    document.getElementById("kid-gender").value = gender || "";
+    document.getElementById("kid-photo").value = photo || "";
+    formBlock.style.display = "block";
+  };
+  
+  window.deleteKidDemo = function(id) {
+    if (!confirm("Удалить этого ребёнка?")) return;
+    DEMO_KIDS = DEMO_KIDS.filter(k => k.id !== id);
+    loadKids();
+  };
+  
+  function setupKidsForm() {
+    const addBtn = document.getElementById("add-kid-btn");
+    const formBlock = document.getElementById("kid-form-block");
+    const title = document.getElementById("kid-form-title");
+    const saveBtn = document.getElementById("kid-save-btn");
+    const cancelBtn = document.getElementById("kid-cancel-btn");
+    
+    if (!addBtn) return;
+    
+    addBtn.addEventListener("click", () => {
+      window.editingKidId = null;
+      title.textContent = "Добавить ребёнка";
+      document.getElementById("kid-name").value = "";
+      document.getElementById("kid-birth").value = "";
+      document.getElementById("kid-gender").value = "";
+      document.getElementById("kid-photo").value = "";
+      formBlock.style.display = "block";
+    });
+    
+    cancelBtn.addEventListener("click", () => {
+      formBlock.style.display = "none";
+    });
+    
+    saveBtn.addEventListener("click", () => {
+      const full_name = document.getElementById("kid-name").value.trim();
+      const birth_date = document.getElementById("kid-birth").value || null;
+      const gender = document.getElementById("kid-gender").value || null;
+      const photo_url = document.getElementById("kid-photo").value || null;
+      
+      if (!full_name) {
+        alert("Введите имя ребёнка");
+        return;
+      }
+      
+      if (window.editingKidId === null) {
+        // Добавление нового ребенка
+        const newKid = {
+          id: DEMO_KIDS.length > 0 ? Math.max(...DEMO_KIDS.map(k => k.id)) + 1 : 1,
+          full_name,
+          birth_date,
+          gender,
+          photo_url
+        };
+        DEMO_KIDS.push(newKid);
+        alert("Ребёнок добавлен");
+      } else {
+        // Редактирование существующего
+        const kidIndex = DEMO_KIDS.findIndex(k => k.id === window.editingKidId);
+        if (kidIndex !== -1) {
+          DEMO_KIDS[kidIndex] = {
+            ...DEMO_KIDS[kidIndex],
+            full_name,
+            birth_date,
+            gender,
+            photo_url
+          };
+          alert("Данные обновлены");
+        }
+      }
+      
+      formBlock.style.display = "none";
+      loadKids();
+    });
+  }
+  
+  function calcAge(dateStr) {
+    if (!dateStr) return "—";
+    const birth = new Date(dateStr);
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const mDiff = now.getMonth() - birth.getMonth();
+    if (mDiff < 0 || (mDiff === 0 && now.getDate() < birth.getDate())) {
+      age--;
+    }
+    return `${age} лет`;
+  }
+  
+  function setupSearch() {
+    const btn = document.getElementById("search-activities-btn");
+    const simpleBtn = document.getElementById("simple-search-btn");
+    const textInput = document.getElementById("filter-text");
+    
+    function runSearch() {
+      const text = textInput ? textInput.value.trim().toLowerCase() : "";
+      const city = document.getElementById("filter-city").value.trim().toLowerCase();
+      const age = document.getElementById("filter-age").value;
+      const category = document.getElementById("filter-category").value;
+      
+      const box = document.getElementById("activities-results");
+      if (!box) return;
+      
+      box.textContent = "Поиск...";
+      
+      // Фильтрация
+      let filtered = DEMO_ACTIVITIES;
+      
+      if (text) {
+        filtered = filtered.filter(a => 
+          a.title.toLowerCase().includes(text) || 
+          a.description.toLowerCase().includes(text) ||
+          a.center_name.toLowerCase().includes(text)
+        );
+      }
+      
+      if (city) {
+        filtered = filtered.filter(a => a.city.toLowerCase().includes(city));
+      }
+      
+      if (age) {
+        const ageNum = parseInt(age);
+        filtered = filtered.filter(a => 
+          ageNum >= a.min_age && ageNum <= a.max_age
+        );
+      }
+      
+      if (category && category !== "any") {
+        filtered = filtered.filter(a => a.category === category);
+      }
+      
+      setTimeout(() => {
+        if (!filtered.length) {
+          box.textContent = "Ничего не найдено. Попробуйте изменить фильтры.";
+          return;
+        }
+        
+        box.innerHTML = filtered
+          .map(
+            (a) => `
+            <article class="activity-card">
+              <div style="flex: 1;">
+                <h3 style="margin: 0 0 8px 0;">${a.title}</h3>
+                <div style="color: #52a655; margin-bottom: 8px;">
+                  <button class="link-as-button" onclick="alert('Информация о центре: ${a.center_name}')">
+                    ${a.center_name}
+                  </button> · ${a.city}
+                </div>
+                <div style="display: flex; gap: 8px; margin: 8px 0;">
+                  <span class="tag-chip">${a.category || "Без категории"}</span>
+                  <span class="tag-chip">${a.min_age}–${a.max_age} лет</span>
+                </div>
+                <p style="color: #666; margin: 8px 0;">${a.description}</p>
+              </div>
+              <div style="text-align: right; margin-left: 16px;">
+                <div style="font-weight: bold; margin-bottom: 8px;">${a.price}</div>
+                <div>
+                  <button class="btn btn-primary btn-sm" onclick="alert('Подробности занятия: ${a.title}\\n\\nЦена: ${a.price}\\nОписание: ${a.description}')">
+                    Подробнее
+                  </button>
+                </div>
+              </div>
+            </article>`
+          )
+          .join("");
+      }, 300);
+    }
+    
+    if (btn) {
+      btn.addEventListener("click", runSearch);
+    }
+    
+    if (simpleBtn) {
+      simpleBtn.addEventListener("click", runSearch);
+    }
+    
+    if (textInput) {
+      textInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          runSearch();
+        }
+      });
+    }
+    
+    // ПЕРВЫЙ ЗАПУСК - показываем все занятия
+    runSearch();
+  }
+  
+  function loadProfile() {
+    document.getElementById("profile-city").value = DEMO_PARENT.city || "";
+    document.getElementById("profile-phone").value = DEMO_PARENT.phone || "";
+    document.getElementById("profile-telegram").value = DEMO_PARENT.telegram || "";
+    document.getElementById("profile-whatsapp").value = DEMO_PARENT.whatsapp || "";
+    document.getElementById("profile-extra-email").value = DEMO_PARENT.extra_email || "";
+    document.getElementById("profile-avatar").value = DEMO_PARENT.avatar_url || "";
+  }
+  
+  function setupProfileSave() {
+    const btn = document.getElementById("profile-save-btn");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      DEMO_PARENT.city = document.getElementById("profile-city").value.trim();
+      DEMO_PARENT.phone = document.getElementById("profile-phone").value.trim();
+      DEMO_PARENT.telegram = document.getElementById("profile-telegram").value.trim();
+      DEMO_PARENT.whatsapp = document.getElementById("profile-whatsapp").value.trim();
+      DEMO_PARENT.extra_email = document.getElementById("profile-extra-email").value.trim();
+      DEMO_PARENT.avatar_url = document.getElementById("profile-avatar").value.trim();
+      
+      alert("Профиль сохранён (демо-режим)");
+    });
+  }
+  
+  function loadSchoolLessons() {
+    // Просто показываем сообщение, что данные загружены
+    const box = document.getElementById("school-lessons-list");
+    if (box) {
+      box.textContent = "Школьные уроки учитываются в общей таблице расписания выше.";
+    }
+    
+    // Обновляем таблицу расписания
+    renderScheduleTable();
+  }
+  
+  function renderScheduleTable() {
+    const wrapper = document.getElementById("schedule-table-wrapper");
+    if (!wrapper) return;
+    
+    wrapper.innerHTML = `
+      <h3 style="margin-top:0;margin-bottom:8px;">Расписание на неделю</h3>
+      <div style="overflow-x: auto;">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>Урок / блок</th>
+              <th>Пн</th>
+              <th>Вт</th>
+              <th>Ср</th>
+              <th>Чт</th>
+              <th>Пт</th>
+              <th>Сб</th>
+              <th>Вс</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="schedule-lesson-num">1</td>
+              <td class="schedule-cell">
+                <div class="schedule-badge schedule-badge-school" style="background:#c6f1a9;">
+                  <div class="schedule-badge-subject">Математика</div>
+                  <div class="schedule-badge-kid">Мария</div>
+                </div>
+              </td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+            </tr>
+            <tr>
+              <td class="schedule-lesson-num">Кружки</td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell">
+                <div class="schedule-badge schedule-badge-extra" style="border-color:#c6f1a9;">
+                  <div class="schedule-badge-subject">Творческая мастерская</div>
+                  <div class="schedule-badge-kid">Мария · 17:00-18:00</div>
+                  <div class="schedule-badge-center">Демо Центр развития детей</div>
+                </div>
+              </td>
+              <td class="schedule-cell">
+                <div class="schedule-badge schedule-badge-extra" style="border-color:#ffc7a6;">
+                  <div class="schedule-badge-subject">Гимнастика для детей</div>
+                  <div class="schedule-badge-kid">Алексей · 16:00-17:00</div>
+                  <div class="schedule-badge-center">Демо Центр развития детей</div>
+                </div>
+              </td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+              <td class="schedule-cell schedule-cell-empty"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  
+  function setupScheduleControls() {
+    const kidFilter = document.getElementById("schedule-kid-filter");
+    const viewButtons = document.querySelectorAll(".view-btn");
+    const typeRadios = document.querySelectorAll('input[name="schedule-type"]');
+    
+    if (kidFilter) {
+      kidFilter.innerHTML = `
+        <option value="all">Все дети</option>
+        ${DEMO_KIDS.map(k => `<option value="${k.id}">${k.full_name}</option>`).join('')}
+      `;
+    }
+    
+    if (viewButtons) {
+      viewButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          viewButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderScheduleTable();
+        });
+      });
+    }
+    
+    if (typeRadios) {
+      typeRadios.forEach(r => {
+        r.addEventListener("change", () => {
+          renderScheduleTable();
+        });
+      });
+    }
+    
+    // Кнопка экспорта
+    const exportBtn = document.getElementById("export-schedule-btn");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", () => {
+        alert("В демо-режиме экспорт работает через библиотеку html2canvas.");
+      });
+    }
+  }
+  
+  function setupSchoolForm() {
+    const toggleBtn = document.getElementById("toggle-school-form-btn");
+    const addBtn = document.getElementById("school-add-btn");
+    const container = document.getElementById("school-form-container");
+    
+    if (toggleBtn && container) {
+      toggleBtn.addEventListener("click", () => {
+        container.style.display = container.style.display === "block" ? "none" : "block";
+      });
+    }
+    
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        const kidSelect = document.getElementById("school-kid-select");
+        const subject = document.getElementById("school-subject").value.trim();
+        
+        if (!subject) {
+          alert("Введите предмет");
+          return;
+        }
+        
+        alert(`Урок "${subject}" добавлен в расписание (демо-режим)`);
+        document.getElementById("school-subject").value = "";
+      });
+    }
+  }
+  
+  function setupNotificationsBell() {
+    const bell = document.getElementById("notifications-bell");
+    const dropdown = document.getElementById("notifications-dropdown");
+    const badge = document.getElementById("notifications-badge");
+    
+    if (!bell || !dropdown) return;
+    
+    const demoReminders = [
+      {
+        id: 1,
+        title: "Завтра у Марии творческая мастерская",
+        time_label: "Завтра в 17:00",
+        center_name: "Демо Центр развития детей",
+        note: "Не забудьте взять сменную обувь и фартук"
+      }
+    ];
+    
+    function renderNotifications() {
+      dropdown.innerHTML = demoReminders
+        .map(
+          (r) => `
+          <div class="notification-item" style="padding: 12px; border-bottom: 1px solid #eee;">
+            <div style="font-weight: bold; margin-bottom: 4px;">${r.title}</div>
+            <div style="color: #666; font-size: 14px; margin-bottom: 8px;">
+              ${r.time_label}${r.center_name ? " · " + r.center_name : ""}
+            </div>
+            ${r.note ? `<div style="color: #666; font-size: 14px; margin-bottom: 8px;">${r.note}</div>` : ""}
+            <div>
+              <button class="btn btn-outline btn-sm" data-reminder-id="${r.id}" style="font-size: 12px;">
+                Закрыть
+              </button>
+            </div>
+          </div>
+        `
+        )
+        .join("");
+      
+      if (badge) {
+        badge.hidden = demoReminders.length === 0;
+        badge.textContent = demoReminders.length;
+      }
+      
+      dropdown.querySelectorAll("button[data-reminder-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          alert("Напоминание закрыто (демо-режим)");
+          dropdown.style.display = "none";
+        });
+      });
+    }
+    
+    renderNotifications();
+    
+    bell.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+    
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".nav-notifications") && dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+});
+</script>
+
 </body>
 </html>
-<div style="margin-top:24px;">
-  <h3>Школьное расписание детей</h3>
-  <p class="section-subtitle">
-    Добавьте уроки, чтобы система могла учитывать пересечения с кружками.
-  </p>
-
-  <div class="reminders-card">
-    <div class="auth-field">
-      <label>Ребёнок</label>
-      <select id="school-kid-select"></select>
-    </div>
-    <div class="auth-field">
-      <label>День недели</label>
-      <select id="school-weekday">
-        <option value="1">Понедельник</option>
-        <option value="2">Вторник</option>
-        <option value="3">Среда</option>
-        <option value="4">Четверг</option>
-        <option value="5">Пятница</option>
-        <option value="6">Суббота</option>
-        <option value="7">Воскресенье</option>
-      </select>
-    </div>
-    <div class="auth-field">
-      <label>Номер урока</label>
-      <input type="number" id="school-lesson-number" min="1" max="10">
-    </div>
-    <div class="auth-field">
-      <label>Предмет</label>
-      <input type="text" id="school-subject">
-    </div>
-    <button class="btn btn-primary btn-sm" id="school-add-btn">Добавить урок</button>
-  </div>
-
-  <div id="school-lessons-list" class="upcoming-card" style="margin-top:16px;">
-    Загрузка школьного расписания...
-  </div>
-</div>
-

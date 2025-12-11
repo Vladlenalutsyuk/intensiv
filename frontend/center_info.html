@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Информация о центре — РазвиТайм</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-root">
+<header class="app-header">
+  <div class="container app-header-inner">
+    <div class="logo-block">
+      <img src="assets/logo.png" alt="РазвиТайм" class="logo-image" />
+      <div class="logo-texts">
+        <div class="logo-text-main">РазвиТайм</div>
+        <div class="logo-text-sub">умное расписание для семьи</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">Главная</a>
+      <a href="search.html">Найти занятия</a>
+      <span id="auth-links">
+        <!-- Сюда подставится либо Войти, либо ссылка в ЛК -->
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main class="page-parent" style="padding-top:24px;">
+  <div class="container">
+    <div id="center-info-card" class="split-card">
+      Загрузка данных о центре...
+    </div>
+
+    <section style="margin-top:24px;">
+      <h2 class="section-title">Все занятия центра</h2>
+      <div id="center-activities-list" class="activities-list-grid">
+        <!-- сюда придут карточки кружков -->
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="container app-footer-inner">
+    <div>© 2025 РазвиТайм.</div>
+    <div class="footer-links">
+      <a href="#">О платформе</a>
+      <a href="#">Для родителей</a>
+      <a href="#">Для центров</a>
+      <a href="#">Контакты</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const API_BASE = "http://localhost:5000";
+  let CURRENT_USER = null;
+  let CURRENT_CENTER_ID = null;
+
+  // Проверяем авторизацию
+  function checkAuth() {
+    const authLinks = document.getElementById("auth-links");
+    try {
+      const userData = localStorage.getItem("razvitime_user");
+      CURRENT_USER = userData ? JSON.parse(userData) : null;
+      
+      if (CURRENT_USER && CURRENT_USER.role === "parent") {
+        authLinks.innerHTML = `<a href="parent.html">Личный кабинет</a>`;
+      } else {
+        authLinks.innerHTML = `<a href="auth.html">Войти</a>`;
+      }
+    } catch (e) {
+      authLinks.innerHTML = `<a href="auth.html">Войти</a>`;
+    }
+  }
+
+  function getCenterId() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  
+  console.log('URL params:', window.location.search);
+  console.log('Extracted ID:', id);
+  
+  // Проверяем, что ID валидный
+  if (!id) {
+    console.error('No center ID provided');
+    showError('Не указан идентификатор центра. Вернитесь к поиску и выберите центр.');
+    return null;
+  }
+  
+  if (id === 'undefined' || id === 'null') {
+    console.error('Invalid center ID:', id);
+    showError('Неверный идентификатор центра. Вернитесь к поиску и выберите центр.');
+    return null;
+  }
+  
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) {
+    console.error('Center ID is not a number:', id);
+    showError('Идентификатор центра должен быть числом. Вернитесь к поиску и выберите центр.');
+    return null;
+  }
+  
+  if (numericId <= 0) {
+    console.error('Center ID is not positive:', numericId);
+    showError('Неверный идентификатор центра. Вернитесь к поиску и выберите центр.');
+    return null;
+  }
+  
+  CURRENT_CENTER_ID = numericId;
+  console.log('Valid center ID:', CURRENT_CENTER_ID);
+  return CURRENT_CENTER_ID;
+}
+
+  function showError(message, showBackLink = true) {
+    const infoBox = document.getElementById("center-info-card");
+    const listBox = document.getElementById("center-activities-list");
+    
+    const backUrl = CURRENT_USER && CURRENT_USER.role === "parent" ? "parent.html#search" : "search.html";
+    
+    infoBox.innerHTML = `
+      <div class="error-state" style="text-align: center; padding: 40px 20px; color: #666;">
+        <h3 style="color: #d32f2f; margin-bottom: 12px;">Ошибка</h3>
+        <p>${message}</p>
+        ${showBackLink ? `<a href="${backUrl}" class="btn btn-primary" style="margin-top: 16px; display: inline-block;">Вернуться к поиску</a>` : ''}
+      </div>
+    `;
+    
+    if (listBox) {
+      listBox.innerHTML = '';
+    }
+  }
+
+  function renderCenterInfo(center, activities) {
+    const infoBox = document.getElementById("center-info-card");
+    const listBox = document.getElementById("center-activities-list");
+
+    if (!center) {
+      showError("Центр не найден");
+      return;
+    }
+
+    // Рендерим информацию о центре
+    infoBox.innerHTML = `
+      <h1 class="section-title">${center.name || 'Название не указано'}</h1>
+      <p class="section-subtitle">${center.city || ''}${
+        center.address ? ' · ' + center.address : ''
+      }</p>
+
+      <div style="margin-top:12px;">
+        <h3>О центре</h3>
+        <p>${center.description || "Описание пока не заполнено."}</p>
+      </div>
+
+      <div style="margin-top:12px;">
+        <h3>Контакты</h3>
+        <ul class="split-card-steps">
+          ${center.phone ? `<li>Телефон: <a href="tel:${center.phone}">${center.phone}</a></li>` : ''}
+          ${center.whatsapp ? `<li>WhatsApp: ${center.whatsapp}</li>` : ''}
+          ${center.website ? `<li>Сайт: <a href="${center.website}" target="_blank">${center.website}</a></li>` : ''}
+          ${center.instagram ? `<li>Instagram: <a href="https://instagram.com/${center.instagram.replace('@', '')}" target="_blank">${center.instagram}</a></li>` : ''}
+        </ul>
+      </div>
+    `;
+
+    // Рендерим список занятий
+    if (!activities || !activities.length) {
+      listBox.innerHTML = '<p class="no-data" style="text-align: center; color: #666; padding: 40px 20px; font-style: italic;">В этом центре пока нет добавленных занятий.</p>';
+    } else {
+      listBox.innerHTML = activities
+        .map(activity => `
+          <article class="activity-card" style="transition: transform 0.2s ease;">
+            <div class="activity-main">
+              <h3>${activity.title || 'Без названия'}</h3>
+              <div class="activity-meta">
+                ${activity.category || 'Без категории'}${
+                  activity.min_age || activity.max_age
+                    ? ` · ${activity.min_age || '?'}–${activity.max_age || '?'} лет`
+                    : ''
+                }
+              </div>
+              <p class="activity-desc">
+                ${activity.description ? 
+                  (activity.description.length > 140 ? 
+                    activity.description.slice(0, 140) + '...' : 
+                    activity.description
+                  ) : 
+                  'Описание появится позже.'
+                }
+              </p>
+              ${CURRENT_USER && CURRENT_USER.role === "parent" ? `
+                <div style="margin-top: 12px;">
+                  <button class="btn btn-primary btn-sm" onclick="enrollToActivity(${activity.id})">
+                    📝 Записать ребенка
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </article>
+        `)
+        .join('');
+    }
+  }
+
+  // Функция записи на занятие
+  async function enrollToActivity(activityId) {
+    if (!CURRENT_USER || CURRENT_USER.role !== "parent") {
+      alert('Для записи необходимо войти в личный кабинет родителя');
+      window.location.href = 'auth.html#parent';
+      return;
+    }
+
+    try {
+      // Сначала получим группы для этого занятия
+      const groupsRes = await fetch(`${API_BASE}/api/public/activities/${activityId}/groups`);
+      const groups = await groupsRes.json();
+
+      if (!groups || !groups.length) {
+        alert('Для этого занятия нет доступных групп');
+        return;
+      }
+
+      // Получим список детей родителя
+      const kidsRes = await fetch(`${API_BASE}/api/parent/kids?parentId=${CURRENT_USER.parent_id}`);
+      const kids = await kidsRes.json();
+
+      if (!kids || !kids.length) {
+        alert('Сначала добавьте детей в личном кабинете');
+        window.location.href = 'parent.html#kids';
+        return;
+      }
+
+      // Покажем диалог выбора ребенка и группы
+      showEnrollmentDialog(activityId, groups, kids);
+      
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      alert('Ошибка при записи на занятие');
+    }
+  }
+
+  function showEnrollmentDialog(activityId, groups, kids) {
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    `;
+    
+    dialog.innerHTML = `
+      <div style="background: white; padding: 24px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <h3 style="margin-top: 0;">Запись на занятие</h3>
+        
+        <div class="form-group">
+          <label>Выберите ребенка:</label>
+          <select id="enroll-kid-select" class="filter-select" style="width: 100%; margin-top: 8px;">
+            ${kids.map(kid => `<option value="${kid.id}">${kid.full_name}</option>`).join('')}
+          </select>
+        </div>
+        
+        <div class="form-group" style="margin-top: 16px;">
+          <label>Выберите группу:</label>
+          <select id="enroll-group-select" class="filter-select" style="width: 100%; margin-top: 8px;">
+            ${groups.map(group => `
+              <option value="${group.id}">
+                ${group.name || 'Группа'} - ${getWeekdayName(group.weekday)} ${group.start_time?.slice(0, 5)}-${group.end_time?.slice(0, 5)}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style]').remove()">Отмена</button>
+          <button class="btn btn-primary btn-sm" id="confirm-enroll-btn">Записаться</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(dialog);
+    
+    document.getElementById('confirm-enroll-btn').addEventListener('click', async () => {
+      const kidId = document.getElementById('enroll-kid-select').value;
+      const groupId = document.getElementById('enroll-group-select').value;
+      
+      await confirmEnrollment(kidId, groupId);
+      dialog.remove();
+    });
+  }
+
+  async function confirmEnrollment(kidId, groupId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/parent/enroll`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          kid_id: parseInt(kidId),
+          group_id: parseInt(groupId)
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Заявка на запись отправлена! Центр свяжется с вами для подтверждения.');
+      } else {
+        alert(result.error || 'Ошибка при записи');
+      }
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      alert('Ошибка при отправке заявки');
+    }
+  }
+
+  function getWeekdayName(weekday) {
+    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    return days[weekday] || '--';
+  }
+
+  async function loadCenterInfo() {
+  console.log('=== Starting center info load ===');
+  const centerId = getCenterId();
+  
+  if (!centerId) {
+    console.log('=== No valid center ID, stopping ===');
+    return;
+  }
+
+  console.log('Loading center with ID:', centerId);
+
+  try {
+    const centerUrl = `${API_BASE}/api/public/centers/${centerId}`;
+    const activitiesUrl = `${API_BASE}/api/public/centers/${centerId}/activities`;
+    
+    console.log('Fetching from:', centerUrl);
+    console.log('Fetching from:', activitiesUrl);
+
+    const [centerRes, activitiesRes] = await Promise.all([
+      fetch(centerUrl),
+      fetch(activitiesUrl)
+    ]);
+
+    console.log('Center response status:', centerRes.status);
+    console.log('Activities response status:', activitiesRes.status);
+
+    // Обрабатываем ответ о центре
+    if (!centerRes.ok) {
+      if (centerRes.status === 404) {
+        throw new Error("Центр не найден в базе данных");
+      } else {
+        throw new Error(`Ошибка сервера: ${centerRes.status}`);
+      }
+    }
+
+    const center = await centerRes.json();
+    console.log('Center data loaded:', center);
+    
+    // Обрабатываем ответ о занятиях
+    let activities = [];
+    if (activitiesRes.ok) {
+      activities = await activitiesRes.json();
+      console.log('Activities data loaded:', activities);
+      // Убедимся, что activities - массив
+      if (!Array.isArray(activities)) {
+        console.warn('Activities is not array:', activities);
+        activities = [];
+      }
+    } else {
+      console.warn('Activities fetch failed:', activitiesRes.status);
+    }
+
+    renderCenterInfo(center, activities);
+    
+  } catch (error) {
+    console.error('Center load error:', error);
+    showError(error.message || "Не удалось загрузить информацию о центре");
+  }
+  
+  console.log('=== Finished center info load ===');
+}
+
+  document.addEventListener("DOMContentLoaded", function() {
+    checkAuth();
+    loadCenterInfo();
+  });
+</script>
+</body>
+</html>
